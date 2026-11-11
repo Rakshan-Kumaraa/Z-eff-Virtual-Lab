@@ -1,0 +1,2721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Zeff Quantum Shielding Lab — Slater's Rules Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-base: #06070b;
+  --bg-elevated: #0b0d14;
+  --glass-surface: rgba(15, 18, 28, 0.75);
+  --glass-subtle: rgba(255, 255, 255, 0.03);
+  --glass-hover: rgba(255, 255, 255, 0.06);
+  --border-dim: rgba(255, 255, 255, 0.08);
+  --border-bright: rgba(255, 255, 255, 0.18);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --cyan: #22d3ee;
+  --cyan-soft: rgba(34, 211, 238, 0.12);
+  --violet: #c084fc;
+  --violet-soft: rgba(192, 132, 252, 0.12);
+  --emerald: #34d399;
+  --emerald-soft: rgba(52, 211, 153, 0.12);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.12);
+  --rose: #fb7185;
+  --rose-soft: rgba(251, 113, 133, 0.12);
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 11px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -15%, rgba(34, 211, 238, 0.12), transparent),
+    radial-gradient(ellipse 60% 45% at 90% 10%, rgba(192, 132, 252, 0.08), transparent),
+    linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  min-height: 100vh;
+  padding: 18px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum" on, "zero" on;
+}
+
+/* Main Outer Frame */
+.app-shell {
+  max-width: 1520px;
+  margin: 0 auto;
+  background: rgba(10, 12, 19, 0.82);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid var(--border-dim);
+  border-top-color: rgba(255, 255, 255, 0.16);
+  border-radius: 26px;
+  box-shadow:
+    0 32px 70px -15px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+/* Header */
+header.lab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.brand-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* Moving Atom Logo */
+.atom-emblem {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 35% 30%, rgba(34, 211, 238, 0.2), rgba(15, 23, 42, 0.92));
+  border: 1px solid rgba(34, 211, 238, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 28px rgba(34, 211, 238, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.atom-emblem svg {
+  width: 38px;
+  height: 38px;
+  animation: slowSpin 16s linear infinite;
+}
+
+@keyframes slowSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.brand-titles {
+  min-width: 0;
+}
+
+.brand-titles h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.22rem, 2.2vw, 1.9rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  background: linear-gradient(95deg, #ffffff 0%, #bae6fd 55%, #e9d5ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.brand-titles p {
+  color: var(--text-secondary);
+  font-size: clamp(0.78rem, 1.1vw, 0.9rem);
+  margin-top: 4px;
+}
+
+/* Non-Editable Student Telemetry Bar */
+.student-telemetry {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px 30px;
+  background: rgba(5, 7, 12, 0.65);
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.telemetry-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.022);
+  border: 1px solid var(--border-dim);
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.telemetry-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--cyan);
+  opacity: 0.8;
+}
+
+.telemetry-item:nth-child(2)::before { background: var(--violet); }
+.telemetry-item:nth-child(3)::before { background: var(--emerald); }
+.telemetry-item:nth-child(4)::before { background: var(--amber); }
+
+.telemetry-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.telemetry-label {
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.telemetry-val {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.telemetry-lock {
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+/* Segmented Navigation Bar — Fixed against text collision */
+nav.lab-nav {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 30px;
+  background: rgba(8, 10, 16, 0.55);
+  border-bottom: 1px solid var(--border-dim);
+}
+
+nav.lab-nav button {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.83rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+  overflow: hidden;
+}
+
+nav.lab-nav button .step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-dim);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+nav.lab-nav button .nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+nav.lab-nav button:hover {
+  background: var(--glass-hover);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+nav.lab-nav button.active {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.16), rgba(192, 132, 252, 0.14));
+  color: var(--text-primary);
+  border-color: var(--cyan);
+  box-shadow: 0 4px 18px rgba(34, 211, 238, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+nav.lab-nav button.active .step-num {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #041016;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+}
+
+/* Main Content Area */
+main.lab-main {
+  padding: 26px 30px;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeSlide 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Smoked Glass Cards */
+.g-card {
+  background: var(--glass-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-dim);
+  border-top-color: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
+  min-width: 0;
+}
+
+.g-card-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  flex-shrink: 0;
+}
+
+.section-heading {
+  font-size: clamp(1.18rem, 1.8vw, 1.45rem);
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.section-sub {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-bottom: 18px;
+}
+
+/* Responsive Layout Grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 18px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+
+.sim-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.verifier-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.85fr 0.85fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+/* Equation & Note Blocks */
+.formula-box {
+  background: rgba(6, 8, 14, 0.85);
+  border: 1px solid var(--border-dim);
+  border-left: 3px solid var(--cyan);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  text-align: center;
+  overflow-x: auto;
+}
+
+.callout-glass {
+  background: rgba(192, 132, 252, 0.05);
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  border-left: 3px solid var(--violet);
+  border-radius: var(--radius-md);
+  padding: 12px 15px;
+  margin: 12px 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.callout-glass strong {
+  color: var(--text-primary);
+}
+
+/* Periodic Table Grid (Z = 1 to 54) */
+.ptable-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.block-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot i {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.mobile-picker-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.mobile-swipe-hint {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  display: none;
+}
+
+.ptable-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+
+.ptable-grid {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(38px, 1fr));
+  gap: 4px;
+  min-width: 710px;
+}
+
+.el-cell {
+  aspect-ratio: 1 / 1.06;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(13, 16, 25, 0.88);
+  color: var(--text-primary);
+  padding: 3px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.14s ease;
+  position: relative;
+  user-select: none;
+}
+
+.el-cell .el-z {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  align-self: flex-start;
+  line-height: 1;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.el-cell .el-sym {
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.el-cell .el-zeff {
+  font-size: 0.53rem;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+
+.el-cell.block-s { border-top: 2px solid rgba(251, 113, 133, 0.6); }
+.el-cell.block-p { border-top: 2px solid rgba(34, 211, 238, 0.6); }
+.el-cell.block-d { border-top: 2px solid rgba(192, 132, 252, 0.6); }
+
+.el-cell:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  z-index: 3;
+}
+
+.el-cell.selected {
+  background: rgba(34, 211, 238, 0.16);
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.28), inset 0 0 8px rgba(34, 211, 238, 0.15);
+  z-index: 4;
+}
+
+.el-cell.selected .el-zeff {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+/* Subshell & Ion Controls */
+.controls-strip {
+  display: grid;
+  grid-template-columns: 1.2fr 1.1fr auto;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-dim);
+  align-items: end;
+}
+
+.subshell-pills, .ion-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.pill-btn {
+  padding: 6px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--border-dim);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill-btn:hover {
+  border-color: var(--border-bright);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.pill-btn.active {
+  background: var(--text-primary);
+  color: #06070b;
+  border-color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Telemetry Readout Tiles */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.metric-tile {
+  background: rgba(7, 9, 15, 0.78);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 11px 12px;
+  text-align: left;
+  min-width: 0;
+}
+
+.metric-tile small {
+  display: block;
+  font-size: 0.63rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-tile strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  font-weight: 800;
+  display: block;
+  line-height: 1.15;
+}
+
+.metric-tile span {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-tile.cyan strong { color: var(--cyan); }
+.metric-tile.violet strong { color: var(--violet); }
+.metric-tile.emerald strong { color: var(--emerald); }
+.metric-tile.amber strong { color: var(--amber); }
+
+/* Hund's Rule Orbital Spin-Box Visualizer */
+.orbital-diagram-wrap {
+  background: rgba(6, 8, 14, 0.78);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.orbital-subshells-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.orb-subshell-box {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border-dim);
+  border-radius: 8px;
+  padding: 6px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.orb-subshell-box:hover {
+  border-color: var(--border-bright);
+}
+
+.orb-subshell-box.is-target {
+  border-color: var(--cyan);
+  background: rgba(34, 211, 238, 0.1);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
+}
+
+.orb-cells {
+  display: flex;
+  gap: 3px;
+}
+
+.orb-cell {
+  width: 21px;
+  height: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--cyan);
+  letter-spacing: -1px;
+}
+
+.orb-subshell-box.is-target .orb-cell {
+  border-color: rgba(34, 211, 238, 0.55);
+  color: #ffffff;
+}
+
+.orb-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+/* Slater Group Chips */
+.slater-groups-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 14px;
+}
+
+.s-group-chip {
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(7, 9, 15, 0.82);
+  border: 1px solid var(--border-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.s-group-chip.is-target {
+  border-color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+.s-group-chip .g-mult {
+  font-size: 0.63rem;
+  color: var(--text-muted);
+}
+
+/* Canvas Stage */
+.canvas-stage {
+  background: radial-gradient(circle at 50% 50%, #0d1220 0%, #06080f 100%);
+  border: 1px solid var(--border-dim);
+  border-radius: 14px;
+  padding: 10px;
+  position: relative;
+}
+
+.canvas-stage canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
+.canvas-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Data Tables */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dim);
+  background: rgba(6, 8, 14, 0.65);
+}
+
+table.glass-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+table.glass-table th,
+table.glass-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  white-space: nowrap;
+}
+
+table.glass-table th {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+table.glass-table tr:last-child td {
+  border-bottom: none;
+}
+
+table.glass-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Form Controls */
+.field-group label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.field-group input, .field-group select {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border-dim);
+  background: rgba(6, 8, 14, 0.9);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.field-group input:focus, .field-group select:focus {
+  border-color: var(--cyan);
+}
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.g-btn {
+  padding: 10px 16px;
+  border-radius: 9px;
+  border: 1px solid var(--border-bright);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.83rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.16s ease;
+}
+
+.g-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  transform: translateY(-1px);
+}
+
+.g-btn.primary {
+  background: var(--text-primary);
+  color: #06070b;
+  border-color: var(--text-primary);
+}
+
+.g-btn.primary:hover {
+  background: #e2e8f0;
+}
+
+.g-btn.cyan-accent {
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.g-btn.emerald {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+.g-btn.danger {
+  background: var(--rose-soft);
+  color: var(--rose);
+  border-color: rgba(251, 113, 133, 0.3);
+}
+
+/* Verification Feedback */
+.verify-feedback {
+  margin-top: 12px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  display: none;
+}
+
+.verify-feedback.ok {
+  display: block;
+  background: var(--emerald-soft);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #a7f3d0;
+}
+
+.verify-feedback.err {
+  display: block;
+  background: var(--rose-soft);
+  border: 1px solid rgba(251, 113, 133, 0.4);
+  color: #fecdd3;
+}
+
+/* Printable Report Container */
+#printableReport {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  overflow-x: hidden;
+}
+
+#printableReport h2, #printableReport h3 {
+  color: #0f172a;
+}
+
+#printableReport .rep-header {
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#printableReport .rep-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
+}
+
+.rep-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#printableReport table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0 18px;
+  font-size: 0.8rem;
+}
+
+#printableReport th, #printableReport td {
+  border: 1px solid #94a3b8;
+  padding: 7px 8px;
+  text-align: center;
+  color: #0f172a;
+}
+
+#printableReport th {
+  background: #e2e8f0;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.69rem;
+}
+
+footer.lab-footer {
+  padding: 16px 30px;
+  border-top: 1px solid var(--border-dim);
+  background: rgba(5, 7, 12, 0.78);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================================
+   TABLET & MOBILE BREAKPOINTS (VERIFIED FOR 360px - 1180px)
+============================================================================ */
+@media (max-width: 1180px) {
+  .sim-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 960px) {
+  .student-telemetry {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px 18px;
+    gap: 10px;
+  }
+  nav.lab-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px 18px;
+    gap: 8px;
+  }
+  nav.lab-nav button:last-child {
+    grid-column: 1 / -1;
+  }
+  .controls-strip {
+    grid-template-columns: 1fr;
+  }
+  .verifier-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .verifier-grid > div:first-child {
+    grid-column: 1 / -1;
+  }
+  .verifier-grid > button {
+    grid-column: 1 / -1;
+  }
+  .mobile-swipe-hint {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 8px;
+  }
+  .app-shell {
+    border-radius: 18px;
+  }
+  header.lab-header {
+    padding: 16px 14px;
+    gap: 12px;
+  }
+  .atom-emblem {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+  }
+  .atom-emblem svg {
+    width: 30px;
+    height: 30px;
+  }
+  .student-telemetry {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .telemetry-item {
+    padding: 8px 10px;
+  }
+  .telemetry-lock {
+    display: none;
+  }
+  .telemetry-val {
+    font-size: 0.8rem;
+  }
+  nav.lab-nav {
+    padding: 10px 12px;
+    gap: 7px;
+  }
+  nav.lab-nav button {
+    padding: 9px 10px;
+    font-size: 0.76rem;
+    justify-content: flex-start;
+  }
+  main.lab-main {
+    padding: 16px 12px;
+  }
+  .g-card {
+    padding: 15px 13px;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .btn-row .g-btn {
+    width: 100%;
+  }
+  #printableReport {
+    padding: 16px 12px;
+  }
+  footer.lab-footer {
+    padding: 14px 12px;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body { background: #ffffff !important; padding: 0 !important; color: #000 !important; }
+  .app-shell { border: none !important; box-shadow: none !important; background: #ffffff !important; }
+  header.lab-header, .student-telemetry, nav.lab-nav, footer.lab-footer, .no-print {
+    display: none !important;
+  }
+  main.lab-main { padding: 0 !important; }
+  .tab-panel { display: none !important; }
+  #tab-report { display: block !important; }
+  #printableReport { box-shadow: none !important; padding: 0 !important; }
+  .rep-table-scroll { overflow: visible !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- HEADER (Moving Atom Logo + Clean Inter Gradient Title) -->
+  <header class="lab-header">
+    <div class="brand-left">
+      <div class="atom-emblem" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <ellipse cx="32" cy="32" rx="28" ry="10.5" stroke="#22d3ee" stroke-width="2" transform="rotate(30 32 32)" />
+          <ellipse cx="32" cy="32" rx="28" ry="10.5" stroke="#c084fc" stroke-width="2" transform="rotate(-30 32 32)" />
+          <ellipse cx="32" cy="32" rx="28" ry="10.5" stroke="#34d399" stroke-width="2" transform="rotate(90 32 32)" />
+          <circle cx="32" cy="32" r="5.5" fill="#22d3ee" />
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <h1>Quantum Atomic Shielding &amp; Z<sub>eff</sub> Virtual Laboratory</h1>
+        <p>Determination of Effective Nuclear Charge (Z<sub>eff</sub>) &amp; Screening Constant (&sigma;) via Slater’s Empirical Rules</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- NON-EDITABLE STUDENT TELEMETRY BAR -->
+  <section class="student-telemetry" aria-label="Locked Student Information">
+    <div class="telemetry-item">
+      <div class="telemetry-meta">
+        <span class="telemetry-label">Student Name</span>
+        <span class="telemetry-val" id="stuNameText">Rakshan Kumaraa N</span>
+      </div>
+      <span class="telemetry-lock">VERIFIED</span>
+    </div>
+    <div class="telemetry-item">
+      <div class="telemetry-meta">
+        <span class="telemetry-label">Registration No.</span>
+        <span class="telemetry-val mono" id="stuRegText">RA2611003050003</span>
+      </div>
+      <span class="telemetry-lock">ID</span>
+    </div>
+    <div class="telemetry-item">
+      <div class="telemetry-meta">
+        <span class="telemetry-label">Program &amp; Section</span>
+        <span class="telemetry-val" id="stuDeptText">B.Tech CSE - "A"</span>
+      </div>
+      <span class="telemetry-lock">SEM I</span>
+    </div>
+    <div class="telemetry-item">
+      <div class="telemetry-meta">
+        <span class="telemetry-label">Experiment Date</span>
+        <span class="telemetry-val mono" id="stuDateText">—</span>
+      </div>
+      <span class="telemetry-lock">AUTO</span>
+    </div>
+  </section>
+
+  <!-- NAVIGATION TABS (Wrapped in .nav-label to prevent flex sub-element spacing/overlap) -->
+  <nav class="lab-nav" id="labNav" role="tablist">
+    <button class="active" data-target="tab-theory" role="tab">
+      <span class="step-num">01</span>
+      <span class="nav-label">Theory &amp; Slater’s Rules</span>
+    </button>
+    <button data-target="tab-simulator" role="tab">
+      <span class="step-num">02</span>
+      <span class="nav-label">Interactive Z<sub>eff</sub> Simulator</span>
+    </button>
+    <button data-target="tab-workbench" role="tab">
+      <span class="step-num">03</span>
+      <span class="nav-label">p-Block &amp; d-Block Workbench</span>
+    </button>
+    <button data-target="tab-trends" role="tab">
+      <span class="step-num">04</span>
+      <span class="nav-label">Periodic Trends Graph</span>
+    </button>
+    <button data-target="tab-report" role="tab">
+      <span class="step-num">05</span>
+      <span class="nav-label">Lab Report (PDF / HTML)</span>
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="lab-main">
+
+    <!-- ==================== TAB 1: THEORY & SLATER'S RULES ==================== -->
+    <section class="tab-panel active" id="tab-theory">
+      <h2 class="section-heading">Aim, Physical Principle &amp; Slater’s Empirical Rules</h2>
+      <p class="section-sub">Understand how inner-shell and same-shell electrons screen nuclear attraction and govern atomic radius, ionization enthalpy, and electronegativity.</p>
+
+      <div class="grid-2">
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>1. Aim &amp; Fundamental Principle</span>
+            <span class="badge">Core Concept</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:0.89rem;margin-bottom:12px;">
+            In a multi-electron atom, an outer electron does not experience the full Coulombic attraction of the positively charged nucleus (<strong class="mono" style="color:var(--text-primary);">Z</strong> protons). Inner core electrons and other electrons in the same shell repel the target electron, creating a negative screening cloud that reduces the nuclear pull.
+          </p>
+          <div class="formula-box">
+            Z<sub>eff</sub> = Z &minus; &sigma;
+          </div>
+          <ul style="padding-left:18px;color:var(--text-secondary);font-size:0.87rem;display:grid;gap:8px;">
+            <li><strong style="color:var(--text-primary);">Z (Atomic Number):</strong> Total positive nuclear charge (number of protons).</li>
+            <li><strong style="color:var(--text-primary);">&sigma; (Screening / Shielding Constant):</strong> Dimensionless measure of net inter-electronic repulsion computed via Slater’s empirical rules (1930).</li>
+            <li><strong style="color:var(--text-primary);">Z<sub>eff</sub> (Effective Nuclear Charge):</strong> Net positive charge felt by a target electron in a specific subshell.</li>
+          </ul>
+          <div class="callout-glass">
+            <strong>Orbital Penetration Order:</strong> For a fixed principal quantum number <em>n</em>, radial probability density near the nucleus decreases in the order <span class="mono" style="color:var(--cyan);">ns &gt; np &gt; nd &gt; nf</span>. Hence, <em>s</em> and <em>p</em> orbitals shield more strongly and experience greater nuclear attraction than <em>d</em> and <em>f</em> orbitals.
+          </div>
+        </div>
+
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>2. Slater’s Grouping &amp; Shielding Multipliers</span>
+            <span class="badge">Algorithm</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:0.87rem;margin-bottom:8px;">
+            <strong>Step A — Arrange Subshells into Slater Groups</strong> (ordered from inner to outer shells, grouping <em>ns</em> and <em>np</em> together while keeping <em>nd</em> and <em>nf</em> separate):
+          </p>
+          <div class="formula-box" style="font-size:0.82rem;">
+            (1s) (2s, 2p) (3s, 3p) (3d) (4s, 4p) (4d) (4f) (5s, 5p) &hellip;
+          </div>
+          <p style="color:var(--text-secondary);font-size:0.87rem;margin:12px 0 8px;">
+            <strong>Step B — Apply Shielding Weights (&sigma;<sub>i</sub>) per Electron:</strong>
+          </p>
+          <div class="table-wrap">
+            <table class="glass-table">
+              <thead>
+                <tr>
+                  <th>Group Position Relative to Target</th>
+                  <th>Target in (ns, np)</th>
+                  <th>Target in (nd / nf)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Groups to the <strong>right</strong> (outer)</td>
+                  <td class="mono" style="color:var(--text-muted);">0.00</td>
+                  <td class="mono" style="color:var(--text-muted);">0.00</td>
+                </tr>
+                <tr>
+                  <td><strong>Same group</strong> (&minus;1 target e⁻)</td>
+                  <td class="mono" style="color:var(--cyan);">0.35 <span style="font-size:0.72rem;color:var(--amber);">(0.30 for 1s)</span></td>
+                  <td class="mono" style="color:var(--cyan);">0.35</td>
+                </tr>
+                <tr>
+                  <td>Groups in <strong>(n &minus; 1)</strong> shell</td>
+                  <td class="mono" style="color:var(--violet);">0.85</td>
+                  <td class="mono" style="color:var(--emerald);">1.00</td>
+                </tr>
+                <tr>
+                  <td>Groups in <strong>&le;(n &minus; 2)</strong> shells</td>
+                  <td class="mono" style="color:var(--emerald);">1.00</td>
+                  <td class="mono" style="color:var(--emerald);">1.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Worked Examples -->
+      <div class="grid-2" style="margin-top:18px;">
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>Worked Example A: p-Block — Nitrogen (Z = 7)</span>
+            <span class="badge">2p Valence Electron</span>
+          </div>
+          <p class="mono" style="font-size:0.83rem;color:var(--cyan);margin-bottom:8px;">
+            Ground State: 1s&sup2; 2s&sup2; 2p&sup3; &rarr; Slater Groups: (1s)&sup2; (2s, 2p)&#8309;
+          </p>
+          <ul style="padding-left:18px;font-size:0.86rem;color:var(--text-secondary);display:grid;gap:6px;">
+            <li><strong>Same group (2s, 2p):</strong> 5 &minus; 1 = 4 other electrons &times; 0.35 = <strong class="mono" style="color:var(--text-primary);">1.40</strong></li>
+            <li><strong>(n &minus; 1) shell (1s):</strong> 2 electrons &times; 0.85 = <strong class="mono" style="color:var(--text-primary);">1.70</strong></li>
+            <li><strong>Total Shielding (&sigma;):</strong> 1.40 + 1.70 = <strong class="mono" style="color:var(--violet);">3.10</strong></li>
+            <li><strong>Effective Nuclear Charge (Z<sub>eff</sub>):</strong> 7 &minus; 3.10 = <strong class="mono" style="color:var(--emerald);">3.90</strong></li>
+          </ul>
+        </div>
+
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>Worked Example B: d-Block — Zinc (Z = 30)</span>
+            <span class="badge">4s vs. 3d Comparison</span>
+          </div>
+          <p class="mono" style="font-size:0.83rem;color:var(--cyan);margin-bottom:8px;">
+            Slater Groups: (1s)&sup2; (2s,2p)&#8312; (3s,3p)&#8312; (3d)&sup1;&#8304; (4s,4p)&sup2;
+          </p>
+          <ul style="padding-left:18px;font-size:0.86rem;color:var(--text-secondary);display:grid;gap:6px;">
+            <li><strong>For 4s valence electron:</strong> &sigma; = (1 &times; 0.35) + (18 &times; 0.85) + (10 &times; 1.00) = <strong class="mono" style="color:var(--violet);">25.65</strong> &rarr; <strong class="mono" style="color:var(--emerald);">Z<sub>eff</sub>(4s) = 30 &minus; 25.65 = 4.35</strong></li>
+            <li><strong>For 3d penultimate electron:</strong> (4s)&sup2; lies to the right (0.00); &sigma; = (9 &times; 0.35) + (18 &times; 1.00) = <strong class="mono" style="color:var(--violet);">21.15</strong> &rarr; <strong class="mono" style="color:var(--cyan);">Z<sub>eff</sub>(3d) = 30 &minus; 21.15 = 8.85</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="g-btn primary" onclick="switchTab('tab-simulator', true)">Launch Interactive Z<sub>eff</sub> Simulator &rarr;</button>
+        <button class="g-btn" onclick="switchTab('tab-workbench', true)">Open 5 p-Block &amp; 5 d-Block Workbench &rarr;</button>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: INTERACTIVE SIMULATOR ==================== -->
+    <section class="tab-panel" id="tab-simulator">
+      <div class="ptable-header">
+        <div>
+          <h2 class="section-heading">Interactive Atomic Shielding &amp; Z<sub>eff</sub> Simulator</h2>
+          <p class="section-sub" style="margin-bottom:0;">Select any element (Z = 1 to 54), toggle oxidation state, and inspect any occupied subshell’s spin-box diagram and shielding vectors.</p>
+        </div>
+        <div class="block-legend">
+          <span class="legend-dot"><i style="background:var(--rose)"></i> s-Block</span>
+          <span class="legend-dot"><i style="background:var(--cyan)"></i> p-Block</span>
+          <span class="legend-dot"><i style="background:var(--violet)"></i> d-Block</span>
+        </div>
+      </div>
+
+      <!-- Periodic Table (Z = 1 to 54) + Mobile Quick-Picker -->
+      <div class="g-card" style="margin-bottom:20px;padding:16px;">
+        <div class="mobile-picker-bar">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <label for="quickElementSelect" style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-secondary);">Quick Element Picker:</label>
+            <select id="quickElementSelect" style="padding:6px 10px;border-radius:8px;background:rgba(6,8,14,0.9);color:var(--text-primary);border:1px solid var(--border-bright);font-size:0.82rem;font-weight:600;"></select>
+          </div>
+          <span class="mobile-swipe-hint">&larr; Swipe periodic table horizontally &rarr;</span>
+        </div>
+
+        <div class="ptable-wrap">
+          <div class="ptable-grid" id="ptableGrid"></div>
+        </div>
+
+        <div class="controls-strip">
+          <div>
+            <label style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Target Subshell (Click to Evaluate)</label>
+            <div class="subshell-pills" id="subshellPills"></div>
+          </div>
+          <div>
+            <label style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Ionic Charge State (Removes highest-n first)</label>
+            <div class="ion-pills" id="ionPills">
+              <button class="pill-btn" data-charge="-2">-2</button>
+              <button class="pill-btn" data-charge="-1">-1</button>
+              <button class="pill-btn active" data-charge="0">Neutral (0)</button>
+              <button class="pill-btn" data-charge="1">+1</button>
+              <button class="pill-btn" data-charge="2">+2</button>
+              <button class="pill-btn" data-charge="3">+3</button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;">
+            <button class="g-btn emerald" style="width:100%;" onclick="recordCurrentToLog()">+ Log to Observation Table</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Simulator Split Layout -->
+      <div class="sim-layout">
+        <!-- Left: Live Mathematical Breakdown + Orbital Spin Boxes -->
+        <div class="g-card">
+          <div class="g-card-title">
+            <span id="simElementTitle">Nitrogen (N) — Atomic Number Z = 7</span>
+            <span class="badge" id="simBlockBadge">p-Block • Period 2</span>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-tile cyan">
+              <small>Nuclear Charge (Z)</small>
+              <strong id="mZ">7</strong>
+              <span>Protons</span>
+            </div>
+            <div class="metric-tile violet">
+              <small>Shielding (&sigma;)</small>
+              <strong id="mSigma">3.10</strong>
+              <span>Slater Constant</span>
+            </div>
+            <div class="metric-tile emerald">
+              <small>Slater Z<sub>eff</sub></small>
+              <strong id="mZeff">3.90</strong>
+              <span id="mTargetLabel">Target: 2p</span>
+            </div>
+            <div class="metric-tile amber">
+              <small>SCF Reference Z<sub>eff</sub></small>
+              <strong id="mClementi">3.83</strong>
+              <span>Clementi-Raimondi</span>
+            </div>
+          </div>
+
+          <!-- Hund's Rule Orbital Spin-Box Visualizer -->
+          <div class="orbital-diagram-wrap">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;font-size:0.75rem;color:var(--text-secondary);">
+              <span><strong>Quantum Orbital Spin-Box Diagram (Hund’s Rule):</strong> <span class="mono" id="simConfigText" style="color:var(--cyan);margin-left:4px;">1s² 2s² 2p³</span></span>
+              <span class="mono" id="simTotalElectrons" style="color:var(--text-muted);">7 e⁻</span>
+            </div>
+            <div class="orbital-subshells-row" id="orbitalBoxesContainer"></div>
+          </div>
+
+          <div>
+            <div style="font-size:0.74rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">
+              Slater Ordered Groups &amp; Multipliers:
+            </div>
+            <div class="slater-groups-bar" id="slaterGroupsBar"></div>
+          </div>
+
+          <div>
+            <div style="font-size:0.74rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:8px;">
+              Step-by-Step Shielding Contribution Breakdown:
+            </div>
+            <div class="table-wrap">
+              <table class="glass-table">
+                <thead>
+                  <tr>
+                    <th>Slater Group</th>
+                    <th>Group e⁻</th>
+                    <th>Shielding e⁻</th>
+                    <th>Slater Rule Category</th>
+                    <th>Weight (&sigma;<sub>i</sub>)</th>
+                    <th>&Delta;&sigma;</th>
+                  </tr>
+                </thead>
+                <tbody id="slaterStepBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="formula-box" id="simFinalEquation" style="margin-top:14px;font-size:0.86rem;">
+            Z<sub>eff</sub> = Z &minus; &sigma; = 7 &minus; 3.10 = 3.90
+          </div>
+        </div>
+
+        <!-- Right: 2D Canvas Orbital & Shielding Visualizer -->
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>2D Bohr-Slater Radial Shielding Field</span>
+            <span class="badge" id="canvasStatusBadge">Vector Telemetry</span>
+          </div>
+          <div class="canvas-stage">
+            <canvas id="atomCanvas" width="540" height="470"></canvas>
+            <div class="canvas-toolbar">
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="toggleShieldCloud" checked /> Shielding Field (&sigma;)
+              </label>
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="toggleVectors" checked /> Force Vectors (+Z / &minus;&sigma;)
+              </label>
+              <label style="display:inline-flex;align-items:center;gap:6px;">
+                Speed
+                <input type="range" id="orbitSpeed" min="0" max="2.5" step="0.1" value="1" style="width:72px;accent-color:var(--cyan);" />
+              </label>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-top:12px;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+            <div class="metric-tile" style="padding:10px;">
+              <small>Atomic Radius</small>
+              <strong id="propRadius" style="font-size:1rem;color:var(--cyan);">56 pm</strong>
+              <span>Empirical</span>
+            </div>
+            <div class="metric-tile" style="padding:10px;">
+              <small>1st Ionization</small>
+              <strong id="propIE" style="font-size:1rem;color:var(--violet);">1402 kJ/mol</strong>
+              <span>Ground State</span>
+            </div>
+            <div class="metric-tile" style="padding:10px;">
+              <small>Pauling EN</small>
+              <strong id="propEN" style="font-size:1rem;color:var(--emerald);">3.04</strong>
+              <span>Electronegativity</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="g-btn primary" onclick="switchTab('tab-workbench', true)">Continue to 3. p-Block &amp; d-Block Workbench &rarr;</button>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: 5 p-BLOCK & 5 d-BLOCK WORKBENCH ==================== -->
+    <section class="tab-panel" id="tab-workbench">
+      <h2 class="section-heading">Comparative Lab Workbench: 5 p-Block &amp; 5 d-Block Elements</h2>
+      <p class="section-sub">Load the 10-element curriculum dataset (5 p-block + 5 d-block elements), log custom trials from the simulator, or verify your manual calculations.</p>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <!-- Quick Preset Loader -->
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>Experiment Dataset Presets</span>
+            <span class="badge">Batch Logger</span>
+          </div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);margin-bottom:14px;">
+            Load the standard engineering chemistry comparison of <strong>5 p-block elements</strong> (B, C, N, O, Cl) and <strong>5 d-block transition metals</strong> (Sc, Ti, Cr, Fe, Zn — evaluating both 4s valence and 3d penultimate subshells).
+          </p>
+          <div class="btn-row" style="margin-top:0;">
+            <button class="g-btn primary" onclick="loadStandard10Suite()">Load 5 p-Block + 5 d-Block Suite</button>
+            <button class="g-btn cyan-accent" onclick="loadDBlock4sVs3dSuite()">Compare d-Block (4s vs 3d)</button>
+            <button class="g-btn danger" onclick="clearObservationLog()">Clear Table</button>
+          </div>
+        </div>
+
+        <!-- Interactive Student Self-Check Calculator -->
+        <div class="g-card">
+          <div class="g-card-title">
+            <span>Manual Calculation Verifier</span>
+            <span class="badge">Self-Check</span>
+          </div>
+          <div class="verifier-grid">
+            <div class="field-group">
+              <label for="chkElement">Element &amp; Subshell</label>
+              <select id="chkElement"></select>
+            </div>
+            <div class="field-group">
+              <label for="chkSigma">Calculated &sigma;</label>
+              <input id="chkSigma" type="number" step="0.01" placeholder="3.10" class="mono" />
+            </div>
+            <div class="field-group">
+              <label for="chkZeff">Calculated Z<sub>eff</sub></label>
+              <input id="chkZeff" type="number" step="0.01" placeholder="3.90" class="mono" />
+            </div>
+            <button class="g-btn emerald" style="height:38px;" onclick="verifyStudentCalc()">Verify</button>
+          </div>
+          <div id="verifyOutput" class="verify-feedback"></div>
+        </div>
+      </div>
+
+      <!-- Recorded Observations Table -->
+      <div class="g-card">
+        <div class="g-card-title">
+          <span>Recorded Lab Observations (<span id="logCount">0</span> Entries)</span>
+          <span class="badge">Synced with Report</span>
+        </div>
+        <div class="table-wrap">
+          <table class="glass-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Element</th>
+                <th>Block</th>
+                <th>Z</th>
+                <th>Target Subshell</th>
+                <th>Slater Grouped Configuration</th>
+                <th>Breakdown (&sigma;)</th>
+                <th>Shielding (&sigma;)</th>
+                <th>Slater Z<sub>eff</sub></th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="observationLogBody"></tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button class="g-btn primary" onclick="switchTab('tab-trends', true)">Inspect Periodic Trends Graph &rarr;</button>
+          <button class="g-btn emerald" onclick="switchTab('tab-report', true)">Open Printable Lab Report &rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: LIVE PERIODIC TRENDS GRAPH ==================== -->
+    <section class="tab-panel" id="tab-trends">
+      <h2 class="section-heading">Quantitative Periodic Trends &amp; Subshell Penetration Plotter</h2>
+      <p class="section-sub">Hover or drag your finger across the chart to inspect any element. Observe the +0.65 per proton slope across s/p periods versus the +0.15 per proton slope for 4s electrons across the 3d transition series.</p>
+
+      <div class="g-card" style="margin-bottom:18px;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:0.8rem;">
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="plotValenceZeff" checked onchange="drawTrendsChart()" />
+              <span style="color:var(--cyan);font-weight:700;">&bull; Valence Slater Z<sub>eff</sub></span>
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="plotClementi" checked onchange="drawTrendsChart()" />
+              <span style="color:var(--amber);font-weight:700;">&bull; Clementi-Raimondi SCF Z<sub>eff</sub></span>
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="plot3dZeff" checked onchange="drawTrendsChart()" />
+              <span style="color:var(--violet);font-weight:700;">&bull; 3d Subshell Z<sub>eff</sub> (Z = 21–36)</span>
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="plotSigmaScaled" onchange="drawTrendsChart()" />
+              <span style="color:var(--emerald);font-weight:700;">&bull; Screening Ratio (&sigma; / Z &times; 10)</span>
+            </label>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:0.76rem;color:var(--text-muted);">Atomic Range:</span>
+            <select id="trendRange" onchange="drawTrendsChart()" style="padding:5px 10px;border-radius:7px;background:rgba(255,255,255,0.04);color:var(--text-primary);border:1px solid var(--border-dim);font-size:0.8rem;">
+              <option value="36">H (Z=1) to Kr (Z=36)</option>
+              <option value="54" selected>H (Z=1) to Xe (Z=54)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="canvas-stage" style="padding:10px;">
+          <canvas id="trendsCanvas" width="1180" height="430" style="touch-action:pan-y;"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="g-card">
+          <div class="g-card-title"><span>p-Block Period Slope</span><span class="badge">&Delta;Z<sub>eff</sub> = +0.65</span></div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Across Period 2 (Li to Ne) or Period 3 (Na to Ar), each added electron enters the <strong>same (ns, np) group</strong> and shields by only <strong>0.35</strong>. Thus Z<sub>eff</sub> rises by <strong class="mono" style="color:var(--cyan);">1 &minus; 0.35 = +0.65</strong> per proton, shrinking atomic radii across the period.
+          </p>
+        </div>
+        <div class="g-card">
+          <div class="g-card-title"><span>3d Transition Series Slope</span><span class="badge">&Delta;Z<sub>eff</sub>(4s) = +0.15</span></div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            From Sc (Z=21) to Zn (Z=30), differentiating electrons populate the inner <strong>(n &minus; 1)d = 3d orbital</strong>, shielding the outer 4s electron by <strong>0.85</strong>. Consequently, Z<sub>eff</sub>(4s) increases by only <strong class="mono" style="color:var(--violet);">1 &minus; 0.85 = +0.15</strong> per proton.
+          </p>
+        </div>
+        <div class="g-card">
+          <div class="g-card-title"><span>Alkali Metal Reset</span><span class="badge">n &rarr; n + 1</span></div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Stepping from a Noble Gas (Ne, Z<sub>eff</sub> = 5.85) to the next Alkali Metal (Na, Z<sub>eff</sub> = 2.20) places the new electron into a fresh principal shell where the previous valence shell becomes an (n&minus;1) core shield (0.85 weight).
+          </p>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="g-btn primary" onclick="switchTab('tab-report', true)">Continue to 5. Lab Report (PDF / HTML) &rarr;</button>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: PRINTABLE LAB REPORT ==================== -->
+    <section class="tab-panel" id="tab-report">
+      <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+        <div>
+          <h2 class="section-heading">Official Printable Virtual Lab Report</h2>
+          <p class="section-sub" style="margin-bottom:0;">Pre-filled with your verified credentials and live experiment date for A4 PDF or HTML export.</p>
+        </div>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="g-btn primary" onclick="printLabReport()">Print / Save as A4 PDF</button>
+          <button class="g-btn emerald" onclick="downloadStandaloneReport()">Download Report (.HTML)</button>
+        </div>
+      </div>
+
+      <div id="printableReport"></div>
+    </section>
+
+  </main>
+
+  <footer class="lab-footer">
+    <div>Quantum Atomic Shielding &amp; Z<sub>eff</sub> Virtual Chemistry Laboratory</div>
+    <div><strong>Rakshan Kumaraa N</strong> &bull; <span class="mono">RA2611003050003</span> &bull; B.Tech CSE - "A"</div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================================
+   1. LOCKED STUDENT METADATA & AUTOMATIC DATE INITIALIZATION
+============================================================================ */
+const STUDENT_PROFILE = Object.freeze({
+  name: "Rakshan Kumaraa N",
+  regNo: "RA2611003050003",
+  dept: 'B.Tech CSE - "A"'
+});
+
+function getFormattedToday() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const readable = now.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+  return { iso: `${yyyy}-${mm}-${dd}`, readable };
+}
+
+/* ============================================================================
+   2. COMPLETE ATOMIC & QUANTUM ELEMENT DATABASE (Z = 1 TO 54)
+============================================================================ */
+const ELEMENTS = [
+  { z:1,  sym:"H",  name:"Hydrogen",    period:1, col:1,  block:"s", rad:53,  ie:1312, en:2.20, scf:1.00, cfg:[[1,"s",1]] },
+  { z:2,  sym:"He", name:"Helium",      period:1, col:18, block:"s", rad:31,  ie:2372, en:0.00, scf:1.69, cfg:[[1,"s",2]] },
+
+  { z:3,  sym:"Li", name:"Lithium",     period:2, col:1,  block:"s", rad:167, ie:520,  en:0.98, scf:1.28, cfg:[[1,"s",2],[2,"s",1]] },
+  { z:4,  sym:"Be", name:"Beryllium",   period:2, col:2,  block:"s", rad:112, ie:899,  en:1.57, scf:1.91, cfg:[[1,"s",2],[2,"s",2]] },
+  { z:5,  sym:"B",  name:"Boron",       period:2, col:13, block:"p", rad:87,  ie:801,  en:2.04, scf:2.42, cfg:[[1,"s",2],[2,"s",2],[2,"p",1]] },
+  { z:6,  sym:"C",  name:"Carbon",      period:2, col:14, block:"p", rad:67,  ie:1086, en:2.55, scf:3.14, cfg:[[1,"s",2],[2,"s",2],[2,"p",2]] },
+  { z:7,  sym:"N",  name:"Nitrogen",    period:2, col:15, block:"p", rad:56,  ie:1402, en:3.04, scf:3.83, cfg:[[1,"s",2],[2,"s",2],[2,"p",3]] },
+  { z:8,  sym:"O",  name:"Oxygen",      period:2, col:16, block:"p", rad:48,  ie:1314, en:3.44, scf:4.45, cfg:[[1,"s",2],[2,"s",2],[2,"p",4]] },
+  { z:9,  sym:"F",  name:"Fluorine",    period:2, col:17, block:"p", rad:42,  ie:1681, en:3.98, scf:5.10, cfg:[[1,"s",2],[2,"s",2],[2,"p",5]] },
+  { z:10, sym:"Ne", name:"Neon",        period:2, col:18, block:"p", rad:38,  ie:2081, en:0.00, scf:5.76, cfg:[[1,"s",2],[2,"s",2],[2,"p",6]] },
+
+  { z:11, sym:"Na", name:"Sodium",      period:3, col:1,  block:"s", rad:190, ie:496,  en:0.93, scf:2.51, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",1]] },
+  { z:12, sym:"Mg", name:"Magnesium",   period:3, col:2,  block:"s", rad:145, ie:738,  en:1.31, scf:3.31, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2]] },
+  { z:13, sym:"Al", name:"Aluminium",   period:3, col:13, block:"p", rad:118, ie:578,  en:1.61, scf:4.07, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",1]] },
+  { z:14, sym:"Si", name:"Silicon",     period:3, col:14, block:"p", rad:111, ie:786,  en:1.90, scf:4.29, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",2]] },
+  { z:15, sym:"P",  name:"Phosphorus",  period:3, col:15, block:"p", rad:98,  ie:1012, en:2.19, scf:4.89, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",3]] },
+  { z:16, sym:"S",  name:"Sulfur",      period:3, col:16, block:"p", rad:88,  ie:1000, en:2.58, scf:5.48, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",4]] },
+  { z:17, sym:"Cl", name:"Chlorine",    period:3, col:17, block:"p", rad:79,  ie:1251, en:3.16, scf:6.12, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",5]] },
+  { z:18, sym:"Ar", name:"Argon",       period:3, col:18, block:"p", rad:71,  ie:1521, en:0.00, scf:6.76, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6]] },
+
+  { z:19, sym:"K",  name:"Potassium",   period:4, col:1,  block:"s", rad:243, ie:419,  en:0.82, scf:3.50, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[4,"s",1]] },
+  { z:20, sym:"Ca", name:"Calcium",     period:4, col:2,  block:"s", rad:194, ie:590,  en:1.00, scf:4.40, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[4,"s",2]] },
+  { z:21, sym:"Sc", name:"Scandium",    period:4, col:3,  block:"d", rad:184, ie:633,  en:1.36, scf:4.63, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",1],[4,"s",2]] },
+  { z:22, sym:"Ti", name:"Titanium",    period:4, col:4,  block:"d", rad:176, ie:659,  en:1.54, scf:4.82, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",2],[4,"s",2]] },
+  { z:23, sym:"V",  name:"Vanadium",    period:4, col:5,  block:"d", rad:171, ie:651,  en:1.63, scf:4.98, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",3],[4,"s",2]] },
+  { z:24, sym:"Cr", name:"Chromium",    period:4, col:6,  block:"d", rad:166, ie:653,  en:1.66, scf:5.13, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",5],[4,"s",1]] },
+  { z:25, sym:"Mn", name:"Manganese",   period:4, col:7,  block:"d", rad:161, ie:717,  en:1.55, scf:5.28, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",5],[4,"s",2]] },
+  { z:26, sym:"Fe", name:"Iron",        period:4, col:8,  block:"d", rad:156, ie:762,  en:1.83, scf:5.43, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",6],[4,"s",2]] },
+  { z:27, sym:"Co", name:"Cobalt",      period:4, col:9,  block:"d", rad:152, ie:760,  en:1.88, scf:5.58, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",7],[4,"s",2]] },
+  { z:28, sym:"Ni", name:"Nickel",      period:4, col:10, block:"d", rad:149, ie:737,  en:1.91, scf:5.71, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",8],[4,"s",2]] },
+  { z:29, sym:"Cu", name:"Copper",      period:4, col:11, block:"d", rad:145, ie:745,  en:1.90, scf:5.84, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",1]] },
+  { z:30, sym:"Zn", name:"Zinc",        period:4, col:12, block:"d", rad:142, ie:906,  en:1.65, scf:5.97, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2]] },
+  { z:31, sym:"Ga", name:"Gallium",     period:4, col:13, block:"p", rad:136, ie:579,  en:1.81, scf:6.22, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",1]] },
+  { z:32, sym:"Ge", name:"Germanium",   period:4, col:14, block:"p", rad:125, ie:762,  en:2.01, scf:6.78, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",2]] },
+  { z:33, sym:"As", name:"Arsenic",     period:4, col:15, block:"p", rad:114, ie:947,  en:2.18, scf:7.45, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",3]] },
+  { z:34, sym:"Se", name:"Selenium",    period:4, col:16, block:"p", rad:103, ie:941,  en:2.55, scf:8.29, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",4]] },
+  { z:35, sym:"Br", name:"Bromine",     period:4, col:17, block:"p", rad:94,  ie:1140, en:2.96, scf:9.03, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",5]] },
+  { z:36, sym:"Kr", name:"Krypton",     period:4, col:18, block:"p", rad:88,  ie:1351, en:3.00, scf:9.77, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6]] },
+
+  { z:37, sym:"Rb", name:"Rubidium",    period:5, col:1,  block:"s", rad:265, ie:403,  en:0.82, scf:4.98, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[5,"s",1]] },
+  { z:38, sym:"Sr", name:"Strontium",   period:5, col:2,  block:"s", rad:219, ie:549,  en:0.95, scf:6.07, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[5,"s",2]] },
+  { z:39, sym:"Y",  name:"Yttrium",     period:5, col:3,  block:"d", rad:212, ie:600,  en:1.22, scf:6.26, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",1],[5,"s",2]] },
+  { z:40, sym:"Zr", name:"Zirconium",   period:5, col:4,  block:"d", rad:206, ie:640,  en:1.33, scf:6.45, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",2],[5,"s",2]] },
+  { z:41, sym:"Nb", name:"Niobium",     period:5, col:5,  block:"d", rad:198, ie:652,  en:1.60, scf:5.92, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",4],[5,"s",1]] },
+  { z:42, sym:"Mo", name:"Molybdenum",  period:5, col:6,  block:"d", rad:190, ie:684,  en:2.16, scf:6.11, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",5],[5,"s",1]] },
+  { z:43, sym:"Tc", name:"Technetium",  period:5, col:7,  block:"d", rad:183, ie:702,  en:1.90, scf:7.23, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",5],[5,"s",2]] },
+  { z:44, sym:"Ru", name:"Ruthenium",   period:5, col:8,  block:"d", rad:178, ie:710,  en:2.20, scf:6.48, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",7],[5,"s",1]] },
+  { z:45, sym:"Rh", name:"Rhodium",     period:5, col:9,  block:"d", rad:173, ie:720,  en:2.28, scf:6.64, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",8],[5,"s",1]] },
+  { z:46, sym:"Pd", name:"Palladium",   period:5, col:10, block:"d", rad:169, ie:804,  en:2.20, scf:13.62,cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10]] },
+  { z:47, sym:"Ag", name:"Silver",      period:5, col:11, block:"d", rad:165, ie:731,  en:1.93, scf:6.76, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",1]] },
+  { z:48, sym:"Cd", name:"Cadmium",     period:5, col:12, block:"d", rad:161, ie:868,  en:1.69, scf:8.19, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2]] },
+  { z:49, sym:"In", name:"Indium",      period:5, col:13, block:"p", rad:156, ie:558,  en:1.78, scf:8.47, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2],[5,"p",1]] },
+  { z:50, sym:"Sn", name:"Tin",         period:5, col:14, block:"p", rad:145, ie:709,  en:1.96, scf:9.10, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2],[5,"p",2]] },
+  { z:51, sym:"Sb", name:"Antimony",    period:5, col:15, block:"p", rad:133, ie:834,  en:2.05, scf:9.99, cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2],[5,"p",3]] },
+  { z:52, sym:"Te", name:"Tellurium",   period:5, col:16, block:"p", rad:123, ie:869,  en:2.10, scf:10.81,cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2],[5,"p",4]] },
+  { z:53, sym:"I",  name:"Iodine",      period:5, col:17, block:"p", rad:115, ie:1008, en:2.66, scf:11.61,cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2],[5,"p",5]] },
+  { z:54, sym:"Xe", name:"Xenon",       period:5, col:18, block:"p", rad:108, ie:1170, en:2.60, scf:12.42,cfg:[[1,"s",2],[2,"s",2],[2,"p",6],[3,"s",2],[3,"p",6],[3,"d",10],[4,"s",2],[4,"p",6],[4,"d",10],[5,"s",2],[5,"p",6]] }
+];
+
+const SLATER_GROUP_DEFS = [
+  { id:"1s",   label:"(1s)",     n:1, type:"s",  match:s => s[0]===1 && s[1]==="s" },
+  { id:"2sp",  label:"(2s,2p)",  n:2, type:"sp", match:s => s[0]===2 && (s[1]==="s"||s[1]==="p") },
+  { id:"3sp",  label:"(3s,3p)",  n:3, type:"sp", match:s => s[0]===3 && (s[1]==="s"||s[1]==="p") },
+  { id:"3d",   label:"(3d)",     n:3, type:"d",  match:s => s[0]===3 && s[1]==="d" },
+  { id:"4sp",  label:"(4s,4p)",  n:4, type:"sp", match:s => s[0]===4 && (s[1]==="s"||s[1]==="p") },
+  { id:"4d",   label:"(4d)",     n:4, type:"d",  match:s => s[0]===4 && s[1]==="d" },
+  { id:"4f",   label:"(4f)",     n:4, type:"f",  match:s => s[0]===4 && s[1]==="f" },
+  { id:"5sp",  label:"(5s,5p)",  n:5, type:"sp", match:s => s[0]===5 && (s[1]==="s"||s[1]==="p") }
+];
+
+const SUPERSCRIPTS = { "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","+":"⁺","-":"⁻" };
+function toSup(num) {
+  return String(num).split("").map(c => SUPERSCRIPTS[c] || c).join("");
+}
+
+/* ============================================================================
+   3. SLATER'S RULES ENGINE & HUND'S RULE ORBITAL SPIN-BOX GENERATOR
+============================================================================ */
+function getIonConfig(baseCfg, charge) {
+  let cfg = baseCfg.map(x => [x[0], x[1], x[2]]);
+  const lOrder = { s:0, p:1, d:2, f:3 };
+
+  if (charge > 0) {
+    let rem = charge;
+    while (rem > 0) {
+      cfg.sort((a, b) => (b[0] - a[0]) || (lOrder[b[1]] - lOrder[a[1]]));
+      const target = cfg.find(s => s[2] > 0);
+      if (!target) break;
+      const take = Math.min(target[2], rem);
+      target[2] -= take;
+      rem -= take;
+    }
+  } else if (charge < 0) {
+    let add = Math.abs(charge);
+    const maxCap = { s:2, p:6, d:10, f:14 };
+    cfg.sort((a, b) => (a[0] - b[0]) || (lOrder[a[1]] - lOrder[b[1]]));
+    for (let i = cfg.length - 1; i >= 0 && add > 0; i--) {
+      const cap = maxCap[cfg[i][1]] - cfg[i][2];
+      if (cap > 0) {
+        const give = Math.min(cap, add);
+        cfg[i][2] += give;
+        add -= give;
+      }
+    }
+  }
+  cfg = cfg.filter(s => s[2] > 0);
+  cfg.sort((a, b) => (a[0] - b[0]) || (lOrder[a[1]] - lOrder[b[1]]));
+  return cfg;
+}
+
+function getSlaterGroupForSubshell(n, l) {
+  if (n === 1 && l === "s") return "1s";
+  if (l === "s" || l === "p") return `${n}sp`;
+  return `${n}${l}`;
+}
+
+function buildHundSpinCells(lType, eCount) {
+  const numBoxes = { s:1, p:3, d:5, f:7 }[lType] || 1;
+  const boxes = Array.from({ length: numBoxes }, () => []);
+  let rem = eCount;
+  for (let i = 0; i < numBoxes && rem > 0; i++) {
+    boxes[i].push("↑");
+    rem--;
+  }
+  for (let i = 0; i < numBoxes && rem > 0; i++) {
+    boxes[i].push("↓");
+    rem--;
+  }
+  return boxes.map(b => b.join(""));
+}
+
+function calculateSlater(z, charge = 0, targetSubshellStr = null) {
+  const el = ELEMENTS.find(e => e.z === z);
+  const cfg = getIonConfig(el.cfg, charge);
+  if (cfg.length === 0) return null;
+
+  let targetSub = cfg[cfg.length - 1];
+  if (targetSubshellStr) {
+    const found = cfg.find(s => `${s[0]}${s[1]}` === targetSubshellStr);
+    if (found) targetSub = found;
+  }
+  const targetLabel = `${targetSub[0]}${targetSub[1]}`;
+  const targetGroupId = getSlaterGroupForSubshell(targetSub[0], targetSub[1]);
+  const targetGroupIdx = SLATER_GROUP_DEFS.findIndex(g => g.id === targetGroupId);
+  const targetGroupDef = SLATER_GROUP_DEFS[targetGroupIdx];
+
+  const groups = [];
+  SLATER_GROUP_DEFS.forEach((gDef, idx) => {
+    const matchingSubs = cfg.filter(gDef.match);
+    const count = matchingSubs.reduce((acc, s) => acc + s[2], 0);
+    if (count > 0) {
+      groups.push({
+        idx,
+        id: gDef.id,
+        label: gDef.label,
+        n: gDef.n,
+        type: gDef.type,
+        count,
+        subsText: matchingSubs.map(s => `${s[0]}${s[1]}${toSup(s[2])}`).join("")
+      });
+    }
+  });
+
+  let totalSigma = 0;
+  const steps = groups.map(g => {
+    let shElec = g.count;
+    let mult = 0;
+    let ruleDesc = "";
+
+    if (g.idx > targetGroupIdx) {
+      shElec = g.count;
+      mult = 0.00;
+      ruleDesc = "Outer group (to the right)";
+    } else if (g.idx === targetGroupIdx) {
+      shElec = Math.max(0, g.count - 1);
+      if (g.id === "1s") {
+        mult = 0.30;
+        ruleDesc = "Same (1s) group (-1 target)";
+      } else {
+        mult = 0.35;
+        ruleDesc = `Same ${g.label} group (-1 target)`;
+      }
+    } else {
+      if (targetGroupDef.type === "s" || targetGroupDef.type === "sp") {
+        if (g.n === targetGroupDef.n - 1) {
+          mult = 0.85;
+          ruleDesc = `(n - 1) shell (n = ${g.n})`;
+        } else {
+          mult = 1.00;
+          ruleDesc = `(n - 2) or deeper core (n = ${g.n})`;
+        }
+      } else {
+        mult = 1.00;
+        ruleDesc = "Left of (nd/nf) group";
+      }
+    }
+
+    const contrib = +(shElec * mult).toFixed(4);
+    totalSigma += contrib;
+    return {
+      ...g,
+      shElec,
+      mult,
+      ruleDesc,
+      contrib,
+      isTarget: g.idx === targetGroupIdx
+    };
+  });
+
+  totalSigma = +totalSigma.toFixed(2);
+  const zeff = +(z - totalSigma).toFixed(2);
+
+  return {
+    el,
+    z,
+    charge,
+    cfg,
+    cfgText: cfg.map(s => `${s[0]}${s[1]}${toSup(s[2])}`).join(" "),
+    slaterGroupString: steps.map(s => `${s.label}${toSup(s.count)}`).join(" "),
+    targetSub,
+    targetLabel,
+    targetGroupId,
+    steps,
+    sigma: totalSigma,
+    zeff,
+    totalElectrons: cfg.reduce((a, b) => a + b[2], 0)
+  };
+}
+
+/* ============================================================================
+   4. STATE & UI CONTROLLER (WITH SMOOTH SCROLL TO TOP FIX)
+============================================================================ */
+let state = {
+  selectedZ: 7,
+  selectedCharge: 0,
+  selectedSubshell: null,
+  currentCalc: null,
+  observationLog: [],
+  orbitAngle: 0,
+  hoveredTrendZ: null
+};
+
+function switchTab(tabId, scrollToTop = true) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === tabId));
+  document.querySelectorAll("nav.lab-nav button").forEach(b => b.classList.toggle("active", b.dataset.target === tabId));
+
+  if (tabId === "tab-trends") drawTrendsChart();
+  if (tabId === "tab-report") renderPrintableReport();
+
+  if (scrollToTop) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+document.querySelectorAll("nav.lab-nav button").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.target, true));
+});
+
+function buildPeriodicTable() {
+  const grid = document.getElementById("ptableGrid");
+  const quickSelect = document.getElementById("quickElementSelect");
+  grid.innerHTML = "";
+  quickSelect.innerHTML = "";
+
+  ELEMENTS.forEach(el => {
+    const valCalc = calculateSlater(el.z, 0, null);
+    const opt = document.createElement("option");
+    opt.value = el.z;
+    opt.textContent = `Z = ${el.z} — ${el.name} (${el.sym}) [${el.block}-block, Zeff=${valCalc.zeff.toFixed(2)}]`;
+    if (el.z === state.selectedZ) opt.selected = true;
+    quickSelect.appendChild(opt);
+  });
+
+  quickSelect.addEventListener("change", e => {
+    state.selectedZ = Number(e.target.value);
+    state.selectedCharge = 0;
+    state.selectedSubshell = null;
+    syncIonButtons();
+    updateSimulator();
+  });
+
+  for (let row = 1; row <= 5; row++) {
+    for (let col = 1; col <= 18; col++) {
+      const el = ELEMENTS.find(e => e.period === row && e.col === col);
+      const cell = document.createElement("div");
+      if (!el) {
+        cell.style.visibility = "hidden";
+        grid.appendChild(cell);
+        continue;
+      }
+      const valCalc = calculateSlater(el.z, 0, null);
+      cell.className = `el-cell block-${el.block} ${el.z === state.selectedZ ? "selected" : ""}`;
+      cell.dataset.z = el.z;
+      cell.title = `${el.name} (Z=${el.z}) | Valence Zeff = ${valCalc.zeff.toFixed(2)}`;
+      cell.innerHTML = `
+        <span class="el-z">${el.z}</span>
+        <span class="el-sym">${el.sym}</span>
+        <span class="el-zeff">${valCalc.zeff.toFixed(2)}</span>
+      `;
+      cell.addEventListener("click", () => {
+        state.selectedZ = el.z;
+        state.selectedCharge = 0;
+        state.selectedSubshell = null;
+        syncIonButtons();
+        updateSimulator();
+      });
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function syncIonButtons() {
+  document.querySelectorAll("#ionPills .pill-btn").forEach(b => {
+    b.classList.toggle("active", Number(b.dataset.charge) === state.selectedCharge);
+  });
+}
+
+document.querySelectorAll("#ionPills .pill-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const chg = Number(btn.dataset.charge);
+    if (state.selectedZ - chg <= 0) return;
+    state.selectedCharge = chg;
+    state.selectedSubshell = null;
+    syncIonButtons();
+    updateSimulator();
+  });
+});
+
+function updateSimulator() {
+  const calc = calculateSlater(state.selectedZ, state.selectedCharge, state.selectedSubshell);
+  if (!calc) return;
+  state.currentCalc = calc;
+  state.selectedSubshell = calc.targetLabel;
+
+  document.querySelectorAll(".el-cell").forEach(c => {
+    c.classList.toggle("selected", Number(c.dataset.z) === state.selectedZ);
+  });
+
+  const quickSelect = document.getElementById("quickElementSelect");
+  if (quickSelect) quickSelect.value = String(state.selectedZ);
+
+  const chgStr = state.selectedCharge === 0 ? "" : (state.selectedCharge > 0 ? `${state.selectedCharge}+` : `${Math.abs(state.selectedCharge)}-`);
+  document.getElementById("simElementTitle").innerHTML = `${calc.el.name} (${calc.el.sym}${toSup(chgStr)}) &mdash; Atomic Number Z = ${calc.z}`;
+  document.getElementById("simBlockBadge").textContent = `${calc.el.block.toUpperCase()}-Block • Period ${calc.el.period}`;
+
+  document.getElementById("mZ").textContent = calc.z;
+  document.getElementById("mSigma").textContent = calc.sigma.toFixed(2);
+  document.getElementById("mZeff").textContent = calc.zeff.toFixed(2);
+  document.getElementById("mTargetLabel").textContent = `Target: ${calc.targetLabel} e⁻`;
+  document.getElementById("mClementi").textContent = calc.el.scf.toFixed(2);
+
+  document.getElementById("simTotalElectrons").textContent = `${calc.totalElectrons} e⁻`;
+  document.getElementById("simConfigText").textContent = calc.cfgText;
+
+  // Render Subshell Selector Pills
+  const pillsWrap = document.getElementById("subshellPills");
+  pillsWrap.innerHTML = "";
+  calc.cfg.forEach(s => {
+    const label = `${s[0]}${s[1]}`;
+    const btn = document.createElement("button");
+    btn.className = `pill-btn ${label === calc.targetLabel ? "active" : ""}`;
+    btn.textContent = `${label}${toSup(s[2])}`;
+    btn.addEventListener("click", () => {
+      state.selectedSubshell = label;
+      updateSimulator();
+    });
+    pillsWrap.appendChild(btn);
+  });
+
+  // Render Hund's Rule Orbital Spin-Boxes
+  const orbWrap = document.getElementById("orbitalBoxesContainer");
+  orbWrap.innerHTML = "";
+  calc.cfg.forEach(s => {
+    const label = `${s[0]}${s[1]}`;
+    const spinCells = buildHundSpinCells(s[1], s[2]);
+    const box = document.createElement("div");
+    box.className = `orb-subshell-box ${label === calc.targetLabel ? "is-target" : ""}`;
+    box.title = `Click to evaluate ${label} subshell`;
+    box.innerHTML = `
+      <div class="orb-cells">
+        ${spinCells.map(sp => `<div class="orb-cell">${sp}</div>`).join("")}
+      </div>
+      <span class="orb-label">${label}${toSup(s[2])}</span>
+    `;
+    box.addEventListener("click", () => {
+      state.selectedSubshell = label;
+      updateSimulator();
+    });
+    orbWrap.appendChild(box);
+  });
+
+  // Render Slater Group Chips
+  const groupsBar = document.getElementById("slaterGroupsBar");
+  groupsBar.innerHTML = calc.steps.map(st => `
+    <div class="s-group-chip ${st.isTarget ? "is-target" : ""}">
+      <strong>${st.label}${toSup(st.count)}</strong>
+      <span class="g-mult">${st.shElec} &times; ${st.mult.toFixed(2)} = ${st.contrib.toFixed(2)}</span>
+    </div>
+  `).join("");
+
+  // Render Step-by-Step Breakdown Table
+  const tbody = document.getElementById("slaterStepBody");
+  tbody.innerHTML = calc.steps.map(st => `
+    <tr style="${st.isTarget ? "background:rgba(34,211,238,0.08);font-weight:600;" : ""}">
+      <td class="mono">${st.label}${toSup(st.count)}</td>
+      <td class="mono">${st.count}</td>
+      <td class="mono">${st.shElec}</td>
+      <td>${st.ruleDesc}</td>
+      <td class="mono" style="color:var(--cyan);">${st.mult.toFixed(2)}</td>
+      <td class="mono" style="color:var(--violet);font-weight:700;">${st.contrib.toFixed(2)}</td>
+    </tr>
+  `).join("");
+
+  const sumParts = calc.steps.filter(s => s.contrib > 0).map(s => `(${s.shElec}×${s.mult.toFixed(2)})`).join(" + ") || "0";
+  document.getElementById("simFinalEquation").innerHTML = `
+    &sigma; = ${sumParts} = <strong>${calc.sigma.toFixed(2)}</strong> &nbsp;&bull;&nbsp;
+    Z<sub>eff</sub>(${calc.targetLabel}) = ${calc.z} &minus; ${calc.sigma.toFixed(2)} = <strong style="color:var(--emerald);">${calc.zeff.toFixed(2)}</strong>
+  `;
+
+  document.getElementById("propRadius").textContent = `${calc.el.rad} pm`;
+  document.getElementById("propIE").textContent = `${calc.el.ie} kJ/mol`;
+  document.getElementById("propEN").textContent = calc.el.en > 0 ? calc.el.en.toFixed(2) : "Inert";
+}
+
+/* ============================================================================
+   5. 2D BOHR-SLATER ATOMIC & SHIELDING FIELD VISUALIZER
+============================================================================ */
+function animateAtomCanvas() {
+  const canvas = document.getElementById("atomCanvas");
+  if (canvas && state.currentCalc) {
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const calc = state.currentCalc;
+    const speed = Number(document.getElementById("orbitSpeed").value || 1);
+    const showCloud = document.getElementById("toggleShieldCloud").checked;
+    const showVec = document.getElementById("toggleVectors").checked;
+
+    state.orbitAngle += 0.0075 * speed;
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, cy); ctx.lineTo(W, cy);
+    ctx.moveTo(cx, 0); ctx.lineTo(cx, H);
+    ctx.stroke();
+
+    const maxShell = Math.max(...calc.cfg.map(s => s[0]), 1);
+    const targetN = calc.targetSub[0];
+    const maxRadius = Math.min(W, H) * 0.41;
+    const baseRadius = 46;
+    const stepR = maxShell > 1 ? (maxRadius - baseRadius) / (maxShell - 1) : 0;
+    const getR = n => maxShell === 1 ? 86 : baseRadius + (n - 1) * stepR;
+
+    if (showCloud && calc.sigma > 0) {
+      const targetR = getR(targetN);
+      const grad = ctx.createRadialGradient(cx, cy, 14, cx, cy, targetR);
+      grad.addColorStop(0, "rgba(192, 132, 252, 0.28)");
+      grad.addColorStop(0.65, "rgba(192, 132, 252, 0.11)");
+      grad.addColorStop(1, "rgba(192, 132, 252, 0.0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, targetR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    let targetElectronPos = { x: cx + getR(targetN), y: cy, ang: 0 };
+
+    for (let n = 1; n <= maxShell; n++) {
+      const r = getR(n);
+      const subsInShell = calc.cfg.filter(s => s[0] === n);
+      const eCount = subsInShell.reduce((a, b) => a + b[2], 0);
+      const isTargetShell = n === targetN;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = isTargetShell ? "rgba(34, 211, 238, 0.7)" : "rgba(148, 163, 184, 0.2)";
+      ctx.lineWidth = isTargetShell ? 1.8 : 1.1;
+      if (!isTargetShell) ctx.setLineDash([4, 5]);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = isTargetShell ? "#22d3ee" : "rgba(148,163,184,0.5)";
+      ctx.font = "600 10px 'JetBrains Mono', monospace";
+      ctx.fillText(`n=${n}`, cx + 6, cy - r + 12);
+
+      for (let i = 0; i < eCount; i++) {
+        const dir = n % 2 === 0 ? -1 : 1;
+        const ang = (i * 2 * Math.PI / eCount) + state.orbitAngle * (1.25 / Math.sqrt(n)) * dir;
+        const ex = cx + r * Math.cos(ang);
+        const ey = cy + r * Math.sin(ang);
+
+        if (isTargetShell && i === 0) {
+          targetElectronPos = { x: ex, y: ey, ang, r };
+        } else {
+          ctx.beginPath();
+          ctx.arc(ex, ey, 4.2, 0, Math.PI * 2);
+          ctx.fillStyle = n < targetN ? "#c084fc" : "rgba(148, 163, 184, 0.8)";
+          ctx.fill();
+        }
+      }
+    }
+
+    if (showVec && targetElectronPos) {
+      const { x: tx, y: ty, ang } = targetElectronPos;
+      const inX = -Math.cos(ang), inY = -Math.sin(ang);
+      const pullLen = 44;
+      drawArrow(ctx, tx, ty, tx + inX * pullLen, ty + inY * pullLen, "#34d399", 2.4);
+
+      const repRatio = Math.min(0.88, calc.sigma / calc.z);
+      const pushLen = Math.max(15, pullLen * repRatio);
+      drawArrow(ctx, tx, ty, tx - inX * pushLen, ty - inY * pushLen, "#fb7185", 2.2);
+    }
+
+    if (targetElectronPos) {
+      const { x: tx, y: ty } = targetElectronPos;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(tx, ty, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "#22d3ee";
+      ctx.shadowColor = "#22d3ee";
+      ctx.shadowBlur = 16;
+      ctx.fill();
+      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "700 11px 'JetBrains Mono', monospace";
+      ctx.fillText(`e⁻(${calc.targetLabel})`, tx + 11, ty - 9);
+    }
+
+    const nucGrad = ctx.createRadialGradient(cx - 3, cy - 3, 2, cx, cy, 21);
+    nucGrad.addColorStop(0, "#38bdf8");
+    nucGrad.addColorStop(0.65, "#0284c7");
+    nucGrad.addColorStop(1, "#0f172a");
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+    ctx.fillStyle = nucGrad;
+    ctx.shadowColor = "rgba(34, 211, 238, 0.5)";
+    ctx.shadowBlur = 18;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "700 11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`+${calc.z}`, cx, cy);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+
+    ctx.fillStyle = "rgba(8, 11, 19, 0.84)";
+    ctx.fillRect(12, 12, 208, 66);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.strokeRect(12, 12, 208, 66);
+    ctx.font = "600 11px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#34d399";
+    ctx.fillText(`→ Pull (+Z):      +${calc.z.toFixed(2)}`, 20, 31);
+    ctx.fillStyle = "#fb7185";
+    ctx.fillText(`← Screen (-σ):    -${calc.sigma.toFixed(2)}`, 20, 49);
+    ctx.fillStyle = "#22d3ee";
+    ctx.fillText(`★ Net Zeff(${calc.targetLabel}): +${calc.zeff.toFixed(2)}`, 20, 67);
+  }
+  requestAnimationFrame(animateAtomCanvas);
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color, width) {
+  const head = 6.5;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - head * Math.cos(angle - Math.PI / 6), y2 - head * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(x2 - head * Math.cos(angle + Math.PI / 6), y2 - head * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ============================================================================
+   6. WORKBENCH LOGGING, 5 p-BLOCK + 5 d-BLOCK PRESETS & VERIFIER
+============================================================================ */
+function addCalcToLog(z, charge, targetSub) {
+  const calc = calculateSlater(z, charge, targetSub);
+  if (!calc) return;
+  const key = `${calc.z}-${calc.charge}-${calc.targetLabel}`;
+  if (!state.observationLog.some(item => item.key === key)) {
+    const sumFormula = calc.steps.filter(s => s.contrib > 0).map(s => `${s.shElec}×${s.mult.toFixed(2)}`).join(" + ") || "0";
+    state.observationLog.push({
+      key,
+      z: calc.z,
+      sym: calc.el.sym,
+      name: calc.el.name,
+      block: `${calc.el.block}-block`,
+      target: calc.targetLabel,
+      slaterCfg: calc.slaterGroupString,
+      formula: sumFormula,
+      sigma: calc.sigma,
+      zeff: calc.zeff
+    });
+    renderObservationTable();
+  }
+}
+
+function recordCurrentToLog() {
+  if (!state.currentCalc) return;
+  addCalcToLog(state.currentCalc.z, state.currentCalc.charge, state.currentCalc.targetLabel);
+  switchTab("tab-workbench", true);
+}
+
+function loadStandard10Suite() {
+  state.observationLog = [];
+  [[5,0,"2p"], [6,0,"2p"], [7,0,"2p"], [8,0,"2p"], [17,0,"3p"]].forEach(([z,c,sub]) => addCalcToLog(z,c,sub));
+  [[21,0,"4s"], [22,0,"4s"], [24,0,"3d"], [26,0,"3d"], [30,0,"3d"]].forEach(([z,c,sub]) => addCalcToLog(z,c,sub));
+  renderObservationTable();
+}
+
+function loadDBlock4sVs3dSuite() {
+  state.observationLog = [];
+  [21, 24, 26, 29, 30].forEach(z => {
+    addCalcToLog(z, 0, "4s");
+    addCalcToLog(z, 0, "3d");
+  });
+  renderObservationTable();
+}
+
+function clearObservationLog() {
+  state.observationLog = [];
+  renderObservationTable();
+}
+
+function removeLogEntry(idx) {
+  state.observationLog.splice(idx, 1);
+  renderObservationTable();
+}
+
+function renderObservationTable() {
+  const tbody = document.getElementById("observationLogBody");
+  document.getElementById("logCount").textContent = state.observationLog.length;
+  if (state.observationLog.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="color:var(--text-muted);padding:20px;">No entries logged yet. Click "Load 5 p-Block + 5 d-Block Suite" above or record from the Simulator.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = state.observationLog.map((row, idx) => `
+    <tr>
+      <td class="mono">${idx + 1}</td>
+      <td><strong>${row.name} (${row.sym})</strong></td>
+      <td><span class="badge">${row.block}</span></td>
+      <td class="mono">${row.z}</td>
+      <td class="mono" style="color:var(--cyan);font-weight:700;">${row.target}</td>
+      <td class="mono" style="font-size:0.77rem;">${row.slaterCfg}</td>
+      <td class="mono" style="font-size:0.77rem;color:var(--text-secondary);">${row.formula}</td>
+      <td class="mono" style="color:var(--violet);font-weight:700;">${row.sigma.toFixed(2)}</td>
+      <td class="mono" style="color:var(--emerald);font-weight:700;">${row.zeff.toFixed(2)}</td>
+      <td><button class="g-btn danger" style="padding:4px 9px;font-size:0.72rem;" onclick="removeLogEntry(${idx})">Remove</button></td>
+    </tr>
+  `).join("");
+}
+
+function populateVerifierDropdown() {
+  const sel = document.getElementById("chkElement");
+  const list = [
+    { z:5,  sub:"2p", label:"B (Z=5) — 2p electron" },
+    { z:6,  sub:"2p", label:"C (Z=6) — 2p electron" },
+    { z:7,  sub:"2p", label:"N (Z=7) — 2p electron" },
+    { z:8,  sub:"2p", label:"O (Z=8) — 2p electron" },
+    { z:9,  sub:"2p", label:"F (Z=9) — 2p electron" },
+    { z:15, sub:"3p", label:"P (Z=15) — 3p electron" },
+    { z:17, sub:"3p", label:"Cl (Z=17) — 3p electron" },
+    { z:21, sub:"4s", label:"Sc (Z=21) — 4s electron" },
+    { z:21, sub:"3d", label:"Sc (Z=21) — 3d electron" },
+    { z:24, sub:"3d", label:"Cr (Z=24) — 3d electron" },
+    { z:26, sub:"4s", label:"Fe (Z=26) — 4s electron" },
+    { z:26, sub:"3d", label:"Fe (Z=26) — 3d electron" },
+    { z:29, sub:"3d", label:"Cu (Z=29) — 3d electron" },
+    { z:30, sub:"4s", label:"Zn (Z=30) — 4s electron" },
+    { z:30, sub:"3d", label:"Zn (Z=30) — 3d electron" }
+  ];
+  sel.innerHTML = list.map(item => `<option value="${item.z}|${item.sub}">${item.label}</option>`).join("");
+}
+
+function verifyStudentCalc() {
+  const [zStr, sub] = document.getElementById("chkElement").value.split("|");
+  const calc = calculateSlater(Number(zStr), 0, sub);
+  const uSigma = parseFloat(document.getElementById("chkSigma").value);
+  const uZeff = parseFloat(document.getElementById("chkZeff").value);
+  const out = document.getElementById("verifyOutput");
+
+  if (isNaN(uSigma) || isNaN(uZeff)) {
+    out.className = "verify-feedback err";
+    out.textContent = "Enter numeric values for both σ and Zeff.";
+    return;
+  }
+
+  const okSigma = Math.abs(uSigma - calc.sigma) <= 0.05;
+  const okZeff = Math.abs(uZeff - calc.zeff) <= 0.05;
+
+  if (okSigma && okZeff) {
+    out.className = "verify-feedback ok";
+    out.innerHTML = `✓ Verified! For ${calc.el.name} (${calc.targetLabel}), &sigma; = <strong>${calc.sigma.toFixed(2)}</strong> and Z<sub>eff</sub> = ${calc.z} &minus; ${calc.sigma.toFixed(2)} = <strong>${calc.zeff.toFixed(2)}</strong>.`;
+  } else {
+    out.className = "verify-feedback err";
+    out.innerHTML = `✗ Mismatch for ${calc.el.name} (${calc.targetLabel}): Slater groups are <strong>${calc.slaterGroupString}</strong>. Expected &sigma; = <strong>${calc.sigma.toFixed(2)}</strong> and Z<sub>eff</sub> = <strong>${calc.zeff.toFixed(2)}</strong>.`;
+  }
+}
+
+/* ============================================================================
+   7. PERIODIC TRENDS MULTI-CURVE CHART WITH MOUSE & TOUCH CROSSHAIR
+============================================================================ */
+function drawTrendsChart() {
+  const canvas = document.getElementById("trendsCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const maxZ = Number(document.getElementById("trendRange").value || 54);
+  const showVal = document.getElementById("plotValenceZeff").checked;
+  const showScf = document.getElementById("plotClementi").checked;
+  const show3d  = document.getElementById("plot3dZeff").checked;
+  const showSig = document.getElementById("plotSigmaScaled").checked;
+
+  const padL = 58, padR = 28, padT = 34, padB = 50;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const maxY = 16;
+
+  const xOf = z => padL + ((z - 1) / (maxZ - 1)) * plotW;
+  const yOf = val => padT + plotH - (val / maxY) * plotH;
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+  ctx.lineWidth = 1;
+  for (let yv = 0; yv <= maxY; yv += 2) {
+    const py = yOf(yv);
+    ctx.beginPath();
+    ctx.moveTo(padL, py);
+    ctx.lineTo(W - padR, py);
+    ctx.stroke();
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "600 10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "right";
+    ctx.fillText(yv.toFixed(0), padL - 10, py + 3);
+  }
+
+  [2, 10, 18, 36, 54].filter(z => z <= maxZ).forEach(nz => {
+    const px = xOf(nz);
+    ctx.save();
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = "rgba(34, 211, 238, 0.2)";
+    ctx.beginPath();
+    ctx.moveTo(px, padT);
+    ctx.lineTo(px, H - padB);
+    ctx.stroke();
+    ctx.restore();
+    const el = ELEMENTS.find(e => e.z === nz);
+    ctx.fillStyle = "#22d3ee";
+    ctx.font = "700 10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(el.sym, px, padT - 9);
+  });
+
+  for (let z = 1; z <= maxZ; z++) {
+    if (z === 1 || z % 4 === 0 || z === maxZ) {
+      const px = xOf(z);
+      const el = ELEMENTS.find(e => e.z === z);
+      ctx.fillStyle = "#64748b";
+      ctx.font = "600 10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(`${el.sym}(${z})`, px, H - padB + 18);
+    }
+  }
+
+  function plotCurve(points, color, width = 2.2) {
+    if (points.length === 0) return;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    points.forEach((pt, i) => {
+      if (i === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+    points.forEach(pt => {
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  const subset = ELEMENTS.filter(e => e.z <= maxZ);
+
+  if (showVal) {
+    plotCurve(subset.map(e => ({ x: xOf(e.z), y: yOf(calculateSlater(e.z, 0, null).zeff) })), "#22d3ee", 2.4);
+  }
+  if (showScf) {
+    plotCurve(subset.map(e => ({ x: xOf(e.z), y: yOf(e.scf) })), "#fbbf24", 1.8);
+  }
+  if (show3d) {
+    plotCurve(subset.filter(e => e.z >= 21 && e.z <= 36).map(e => ({ x: xOf(e.z), y: yOf(calculateSlater(e.z, 0, "3d").zeff) })), "#c084fc", 2.2);
+  }
+  if (showSig) {
+    plotCurve(subset.map(e => {
+      const c = calculateSlater(e.z, 0, null);
+      return { x: xOf(e.z), y: yOf((c.sigma / e.z) * 10) };
+    }), "#34d399", 1.8);
+  }
+
+  if (state.hoveredTrendZ && state.hoveredTrendZ <= maxZ) {
+    const hz = state.hoveredTrendZ;
+    const hx = xOf(hz);
+    const hc = calculateSlater(hz, 0, null);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(hx, padT);
+    ctx.lineTo(hx, H - padB);
+    ctx.stroke();
+
+    const boxW = 200, boxH = 74;
+    const bx = Math.min(W - padR - boxW - 8, Math.max(padL + 8, hx + 12));
+    const by = padT + 10;
+
+    ctx.fillStyle = "rgba(9, 12, 20, 0.92)";
+    ctx.fillRect(bx, by, boxW, boxH);
+    ctx.strokeStyle = "rgba(34, 211, 238, 0.5)";
+    ctx.strokeRect(bx, by, boxW, boxH);
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "700 11px 'Inter', sans-serif";
+    ctx.fillText(`${hc.el.name} (${hc.el.sym}) — Z = ${hz}`, bx + 10, by + 18);
+
+    ctx.font = "600 10px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#22d3ee";
+    ctx.fillText(`Slater Zeff (${hc.targetLabel}): ${hc.zeff.toFixed(2)}`, bx + 10, by + 36);
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillText(`Clementi SCF:     ${hc.el.scf.toFixed(2)}`, bx + 10, by + 51);
+    ctx.fillStyle = "#c084fc";
+    ctx.fillText(`Shielding (σ):    ${hc.sigma.toFixed(2)}`, bx + 10, by + 66);
+    ctx.restore();
+  }
+
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "600 11px 'Inter', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Atomic Number (Z) & Element Symbol — Hover or Touch to Inspect Telemetry", W / 2, H - 10);
+}
+
+function setupTrendsHover() {
+  const canvas = document.getElementById("trendsCanvas");
+  if (!canvas) return;
+
+  function updateCrosshairFromClientX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const mx = (clientX - rect.left) * scaleX;
+    const maxZ = Number(document.getElementById("trendRange").value || 54);
+    const padL = 58, padR = 28;
+    const plotW = canvas.width - padL - padR;
+    const ratio = (mx - padL) / plotW;
+    const z = Math.round(1 + ratio * (maxZ - 1));
+    if (z >= 1 && z <= maxZ) {
+      state.hoveredTrendZ = z;
+      drawTrendsChart();
+    }
+  }
+
+  canvas.addEventListener("mousemove", e => updateCrosshairFromClientX(e.clientX));
+  canvas.addEventListener("touchstart", e => {
+    if (e.touches[0]) updateCrosshairFromClientX(e.touches[0].clientX);
+  }, { passive: true });
+  canvas.addEventListener("touchmove", e => {
+    if (e.touches[0]) updateCrosshairFromClientX(e.touches[0].clientX);
+  }, { passive: true });
+  canvas.addEventListener("mouseleave", () => {
+    state.hoveredTrendZ = null;
+    drawTrendsChart();
+  });
+}
+
+/* ============================================================================
+   8. OFFICIAL LAB REPORT GENERATOR (PDF & HTML DOWNLOAD)
+============================================================================ */
+function renderPrintableReport() {
+  if (state.observationLog.length === 0) {
+    loadStandard10Suite();
+  }
+  const today = getFormattedToday();
+
+  const rowsHtml = state.observationLog.map((r, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${r.name} (${r.sym})</strong></td>
+      <td>${r.block.toUpperCase()}</td>
+      <td>${r.z}</td>
+      <td><strong>${r.target}</strong></td>
+      <td style="font-family:monospace;">${r.slaterCfg}</td>
+      <td style="font-family:monospace;">${r.formula}</td>
+      <td><strong>${r.sigma.toFixed(2)}</strong></td>
+      <td><strong>${r.zeff.toFixed(2)}</strong></td>
+    </tr>
+  `).join("");
+
+  document.getElementById("printableReport").innerHTML = `
+    <div class="rep-header">
+      <div>
+        <div style="font-size:0.76rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#0f172a;">
+          SRM Institute of Science and Technology, Tiruchirappalli
+        </div>
+        <h2 style="font-size:1.35rem;margin:4px 0;">Department of Chemistry — Virtual Chemistry Laboratory Report</h2>
+        <div style="font-size:0.88rem;font-weight:600;color:#334155;">
+          Experiment: Calculation of Effective Nuclear Charge (Z<sub>eff</sub>) &amp; Shielding Constant (&sigma;) using Slater’s Rules
+        </div>
+      </div>
+      <div style="text-align:right;font-size:0.8rem;color:#475569;">
+        <strong>Course:</strong> Engineering Chemistry<br/>
+        <strong>Status:</strong> Verified Virtual Lab
+      </div>
+    </div>
+
+    <div class="rep-meta">
+      <div><strong>Student Name:</strong> ${STUDENT_PROFILE.name}</div>
+      <div><strong>Registration No.:</strong> ${STUDENT_PROFILE.regNo}</div>
+      <div><strong>Program &amp; Section:</strong> ${STUDENT_PROFILE.dept}</div>
+      <div><strong>Date of Experiment:</strong> ${today.readable} (${today.iso})</div>
+    </div>
+
+    <h3 style="font-size:0.96rem;margin:14px 0 6px;">1. Aim</h3>
+    <p style="font-size:0.85rem;margin-bottom:12px;">
+      To determine the screening constant (&sigma;) and effective nuclear charge (Z<sub>eff</sub>) experienced by valence and penultimate electrons in selected <em>p</em>-block and <em>d</em>-block elements using Slater’s empirical rules, and to correlate Z<sub>eff</sub> with periodic properties.
+    </p>
+
+    <h3 style="font-size:0.96rem;margin:14px 0 6px;">2. Principle &amp; Formulae</h3>
+    <p style="font-size:0.85rem;margin-bottom:8px;">
+      In a multi-electron atom, inner electrons shield outer electrons from the full nuclear charge (Z). According to Slater’s rules, orbitals are arranged into groups: <strong>(1s) (2s,2p) (3s,3p) (3d) (4s,4p) (4d) (4f) (5s,5p)</strong>. The effective nuclear charge is given by:
+    </p>
+    <p style="font-family:monospace;font-weight:700;background:#f1f5f9;padding:8px 12px;border-radius:6px;text-align:center;margin-bottom:14px;font-size:0.8rem;">
+      Z_eff = Z &minus; &sigma; &nbsp;|&nbsp; For (ns, np): same group = 0.35 (1s = 0.30), (n&minus;1) = 0.85, &le;(n&minus;2) = 1.00 &nbsp;|&nbsp; For (nd, nf): same group = 0.35, inner groups = 1.00
+    </p>
+
+    <h3 style="font-size:0.96rem;margin:14px 0 6px;">3. Observation &amp; Calculation Table</h3>
+    <div class="rep-table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Element</th>
+            <th>Block</th>
+            <th>Atomic No. (Z)</th>
+            <th>Target Electron</th>
+            <th>Slater Grouped Configuration</th>
+            <th>Shielding Breakdown (&sigma;)</th>
+            <th>Total &sigma;</th>
+            <th>Z<sub>eff</sub> = Z &minus; &sigma;</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:0.96rem;margin:14px 0 6px;">4. Key Inferences &amp; Result</h3>
+    <ol style="padding-left:20px;font-size:0.85rem;line-height:1.6;margin-bottom:16px;">
+      <li>Across a <em>p</em>-block period, each added electron enters the same (ns, np) shell and shields by only 0.35, causing Z<sub>eff</sub> to increase by <strong>+0.65 per unit increase in Z</strong>.</li>
+      <li>Across the 3d transition series, differentiating electrons enter the penultimate (n&minus;1)d orbital which shields the outer 4s electron by 0.85, resulting in a gentler <strong>+0.15 increment in Z<sub>eff</sub>(4s)</strong>.</li>
+      <li>A 3d electron experiences a much higher effective nuclear charge than a 4s electron in the same transition metal atom because 4s electrons lie to the right in Slater’s sequence and contribute 0.00 to 3d shielding.</li>
+    </ol>
+  `;
+}
+
+function printLabReport() {
+  renderPrintableReport();
+  window.print();
+}
+
+function downloadStandaloneReport() {
+  renderPrintableReport();
+  const content = document.getElementById("printableReport").innerHTML;
+  const htmlDoc = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Zeff_Lab_Report_${STUDENT_PROFILE.regNo}</title>
+  <style>
+    body{font-family:Arial,sans-serif;color:#0f172a;padding:28px;max-width:1050px;margin:0 auto;line-height:1.5;}
+    .rep-header{border-bottom:2px solid #0f172a;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+    .rep-meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;background:#f8fafc;border:1px solid #cbd5e1;padding:12px;border-radius:8px;margin-bottom:16px;}
+    table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+    th,td{border:1px solid #94a3b8;padding:7px;text-align:center;}
+    th{background:#e2e8f0;}
+  </style></head><body>${content}</body></html>`;
+
+  const blob = new Blob([htmlDoc], { type: "text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `Zeff_Virtual_Lab_Report_${STUDENT_PROFILE.regNo}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ============================================================================
+   9. BOOTSTRAP APPLICATION ON LOAD
+============================================================================ */
+window.addEventListener("DOMContentLoaded", () => {
+  const today = getFormattedToday();
+  document.getElementById("stuDateText").textContent = `${today.readable} (${today.iso})`;
+
+  buildPeriodicTable();
+  populateVerifierDropdown();
+  updateSimulator();
+  loadStandard10Suite();
+  setupTrendsHover();
+  drawTrendsChart();
+  renderPrintableReport();
+  requestAnimationFrame(animateAtomCanvas);
+});
+</script>
+</body>
+</html>
